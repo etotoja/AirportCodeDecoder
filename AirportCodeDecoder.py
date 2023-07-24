@@ -1,25 +1,40 @@
-from FlightRadar24.api import FlightRadar24API
-import requests
+# Importing neccesary Python modules
 import json
+from requests import get
 from datetime import datetime, timedelta
 
-fr_api = FlightRadar24API()
+# Setting headers for opening the URL
+headers = {
+        "accept-encoding": "gzip, br",
+        "accept-language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+        "cache-control": "max-age=0",
+        "origin": "https://www.flightradar24.com",
+        "referer": "https://www.flightradar24.com/",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-site",
+        "user-agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36"
+    }
+
 
 while True:
     try:
+        
         input_apt = input("Enter 3-letter IATA code or 4-letter ICAO code for chosen airport: ")
-
-        selected_apt = input_apt
-        selected_apt_data = fr_api.get_airport(selected_apt)
+        apt_selected = input_apt
 
 
-        apt_name = selected_apt_data['name']
-        apt_iata = selected_apt_data['code']['iata']
-        apt_icao = selected_apt_data['code']['icao']
-        apt_country = selected_apt_data['position']['country']['name']
-        apt_city = selected_apt_data['position']['region']['city']
+        url = f"https://www.flightradar24.com/airports/traffic-stats/?airport={apt_selected}"
+        response = get(url, headers=headers)
+        selected_apt_data = json.loads(response.text)
 
-        apt_time = selected_apt_data['timezone']['offsetHours'] 
+        apt_name = selected_apt_data['details']['name']
+        apt_iata = selected_apt_data['details']['code']['iata']
+        apt_icao = selected_apt_data['details']['code']['icao']
+        apt_country = selected_apt_data['details']['position']['country']['name']
+        apt_city = selected_apt_data['details']['position']['region']['city']
+        apt_time = selected_apt_data['details']['timezone']['offsetHours'] 
+ 
         def calculate_timezone(move):
             # Getting current date and time in UTC
             currenttime = datetime.utcnow() 
@@ -40,13 +55,12 @@ while True:
         apt_localtime = calculate_timezone(apt_time)
 
 
-        apt_timezone = selected_apt_data['timezone']['abbrName']
+        apt_timezone = selected_apt_data['details']['timezone']['abbr']
 
-        print(f"{apt_name}, also known byt its IATA code {apt_iata} or ICAO code {apt_icao}, lays in {apt_city}, {apt_country}. Local time is {apt_localtime} ")
-        
+        print(f"{apt_name}, also known byt its IATA code {apt_iata} or ICAO code {apt_icao}, lays in {apt_city}, {apt_country}. Local time is {apt_localtime} {apt_timezone}")
         break
     except TypeError:
-        print(f"Selected code: '{selected_apt}' does not exist as IATA or ICAO code!")
+        print(f"Selected code: '{apt_selected}' does not exist as IATA or ICAO code!")
         print("Rerunning program...")
         print(" ")
         
