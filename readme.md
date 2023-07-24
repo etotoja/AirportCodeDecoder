@@ -1,10 +1,5 @@
 AirportCodeDecoder is an terminal app, which helps you translate an IATA or ICAO airport code to more understandable format for non-aviation users. Also provide additional information about airport like the other, non used code, its location (city & country) and local time.
 
-## Prerequisites
-Installed FlightRadar24 module:
-```
-pip install flightradar24
-```
 ## How to use
 1. Copy the code into your IDE
 2. Run the code in the terminal
